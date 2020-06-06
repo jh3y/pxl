@@ -2,43 +2,79 @@ import T from 'prop-types'
 import React, { useEffect, useRef } from 'react'
 import styled from 'styled-components'
 
-// Pixel Canvas Component
-const Grid = styled.div`
-  --radius: ${p => p.radius};
-  display: grid;
-  background: hsl(0, 0%, calc(var(--darkness, 100) * 1%));
-  grid-template-rows: repeat(${p => p.height}, ${p => p.size}px);
-  grid-template-columns: repeat(${p => p.width}, ${p => p.size}px);
+const Container = styled.div`
+  position: relative;
+  height: ${(p) => p.height}px;
+  width: ${(p) => p.width}px;
 `
+const Grid = styled.div`
+  --radius: ${(p) => p.radius};
+  display: grid;
+  position: absolute;
+  grid-template-rows: repeat(${(p) => p.height}, ${(p) => p.size}px);
+  grid-template-columns: repeat(${(p) => p.width}, ${(p) => p.size}px);
+`
+const Canvas = styled.canvas`
+  height: ${(p) => p.height}px;
+  position: absolute;
+  width: ${(p) => p.width}px;
+  background: transparent;
+`
+
 const Cell = styled.div`
-  background: var(--color, transparent);
-  border: 1px solid var(--color, hsl(0, 0%, 40%));
   border-radius: calc(var(--radius, 0) * 1%);
 `
 const PixelCanvas = ({ color, cells, size, height, width, radius }) => {
   const gridRef = useRef(null)
+  const underlayRef = useRef(null)
+  const contextRef = useRef(null)
+  const canvasRef = useRef(null)
   const erasing = useRef(false)
-  const update = e => {
-    const cell = e.x && e.y ? document.elementFromPoint(e.x, e.y) : e.target
+  const update = (e) => {
+    const cell =
+      e.clientX && e.clientY
+        ? document.elementFromPoint(e.clientX, e.clientY)
+        : e.target
     // if (e.x && e.y) cell = document.elementFromPoint(e.x, e.y)
     if (
       e.target.parentNode === gridRef.current &&
       cell &&
       cell.hasAttribute('data-index')
     ) {
-      cell.style.setProperty('--color', erasing.current ? null : color)
+      const CELL_INDEX = parseInt(cell.getAttribute('data-index'), 10)
+      const X = CELL_INDEX % width
+      const Y = Math.floor(CELL_INDEX / width)
+      contextRef.current.fillStyle = color
+      if (erasing.current || !radius) {
+        contextRef.current[erasing.current ? 'clearRect' : 'fillRect'](
+          X * size,
+          Y * size,
+          size,
+          size
+        )
+      } else if (radius) {
+        contextRef.current.beginPath()
+        contextRef.current.arc(
+          X * size + size / 2,
+          Y * size + size / 2,
+          size / 2,
+          0,
+          2 * Math.PI
+        )
+        contextRef.current.fill()
+      }
       cells[
         parseInt(cell.getAttribute('data-index'), 10)
       ].color = erasing.current ? null : color
     }
   }
-  const end = e => {
+  const end = (e) => {
     gridRef.current.removeEventListener('pointermove', update)
     window.removeEventListener('pointerup', end)
     erasing.current = false
   }
 
-  const start = e => {
+  const start = (e) => {
     if (e.button === 2) {
       e.preventDefault()
       erasing.current = true
@@ -49,45 +85,84 @@ const PixelCanvas = ({ color, cells, size, height, width, radius }) => {
   }
 
   useEffect(() => {
-    for (const cell of gridRef.current.children) {
-      cell.removeAttribute('style')
+    if (contextRef.current) {
+      contextRef.current.fillStyle = color
     }
-  }, [height, width])
+  }, [color])
 
   useEffect(() => {
-    for (let c = 0; c < cells.length; c++) {
-      gridRef.current.children[c].removeAttribute('style')
-      if (cells[c].color)
-        gridRef.current.children[c].style.setProperty('--color', cells[c].color)
+    if (underlayRef.current) {
+      const CTX = underlayRef.current.getContext('2d')
+      CTX.clearRect(0, 0, width * size, height * size)
+      CTX.strokeStyle = 'hsl(0, 0%, 50%)'
+      CTX.lineWidth = 1
+      for (let l = 0; l < width + 1; l++) {
+        CTX.moveTo(l * size, 0)
+        CTX.lineTo(l * size, height * size)
+        CTX.stroke()
+      }
+      for (let l = 0; l < height + 1; l++) {
+        CTX.moveTo(0, l * size)
+        CTX.lineTo(width * size, l * size)
+        CTX.stroke()
+      }
     }
-  }, [cells])
+  }, [height, width, size])
+
+  useEffect(() => {
+    if (canvasRef.current && contextRef.current === null) {
+      contextRef.current = canvasRef.current.getContext('2d')
+    }
+  }, [])
+
+  useEffect(() => {
+    // If there's a cell change, need to draw the image onto the canvas.
+    if (contextRef.current) {
+      contextRef.current.clearRect(0, 0, width * size, height * size)
+      for (let c = 0; c < cells.length; c++) {
+        if (cells[c].color) {
+          console.info('drawing')
+          const X = c % width
+          const Y = Math.floor(c / width)
+          contextRef.current.fillStyle = cells[c].color
+          if (radius) {
+            contextRef.current.beginPath()
+            contextRef.current.arc(
+              X * size + size / 2,
+              Y * size + size / 2,
+              size / 2,
+              0,
+              Math.PI * 2
+            )
+            contextRef.current.fill()
+          } else {
+            contextRef.current.fillRect(X * size, Y * size, size, size)
+          }
+        }
+      }
+    }
+  }, [height, cells, size, width, radius])
 
   return (
-    <Grid
-      onPointerDown={start}
-      onContextMenu={e => {
-        e.preventDefault()
-        return false
-      }}
-      ref={gridRef}
-      width={width}
-      height={height}
-      size={size}
-      radius={radius}>
-      {cells.map((c, index) => {
-        const x = index % width
-        const y = Math.floor(index / width)
-        return (
-          <Cell
-            key={index}
-            data-x={x}
-            data-y={y}
-            data-index={index}
-            index={index}
-          />
-        )
-      })}
-    </Grid>
+    <Container width={width * size} height={height * size}>
+      <Canvas width={width * size} height={height * size} ref={underlayRef} />
+      <Canvas width={width * size} height={height * size} ref={canvasRef} />
+      <Grid
+        onPointerDown={start}
+        onContextMenu={(e) => {
+          e.preventDefault()
+          return false
+        }}
+        ref={gridRef}
+        width={width}
+        height={height}
+        size={size}
+        radius={radius}>
+        {cells.map((c, index) => {
+          return <Cell key={index} data-index={index} index={index} />
+        })}
+      </Grid>
+    </Container>
   )
 }
 PixelCanvas.propTypes = {

@@ -159,6 +159,7 @@ const App = () => {
     CONFIG.color = c
     controllerRef.current.updateDisplay()
     setColor(c)
+    saveToStorage()
   }
 
   const generateShadow = useCallback(() => {
@@ -198,6 +199,7 @@ const App = () => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  border-radius: ${radius ? '50%' : 0};
 }
 .element:after {
   content: '';
@@ -249,7 +251,7 @@ const App = () => {
         )
         RECT.setAttribute('width', size)
         RECT.setAttribute('height', size)
-        RECT.setAttribute('rx', size * (radius / 100))
+        RECT.setAttribute('rx', radius ? size * 0.5 : 0)
         RECT.setAttribute('fill', cellRef.current[c].color)
         RECT.setAttribute('x', x * size)
         RECT.setAttribute('y', y * size)
@@ -260,12 +262,14 @@ const App = () => {
     alert('Image saved in .svg format!')
   }
   const onClear = () => {
+    if (cellRef.current.filter(c => c.color).length === 0) return
     if (window.confirm('Are you sure you wish to clear the canvas?')) {
       cellRef.current = [...new Array(height * width).fill().map(() => ({}))]
       setViewing(new Date().getTime())
     }
   }
   const onTrim = () => {
+    if (cellRef.current.filter(c => c.color).length === 0) return
     if (
       window.confirm(
         'Are you sure you want to trim the canvas? Maybe snapshot the current canvas in case you want to go back.'
@@ -364,6 +368,7 @@ const App = () => {
         const x = c % width
         const y = Math.floor(c / width)
         CONTEXT.fillStyle = cellRef.current[c].color
+        // Instead make this arc and fill
         CONTEXT.fillRect(x * size, y * size, size, size)
       }
     }
@@ -375,7 +380,7 @@ const App = () => {
     link.click()
     link.remove()
     alert(
-      'Image saved in .png format! NOTE:: If your image uses a radius, this is not translated to the png format. If you need rounded corners, use SVG and then convert to png externally.'
+      'Image saved in .png format!'
     )
   }
 
@@ -517,11 +522,9 @@ const App = () => {
         // generateShadow()
       })
       .name('Pixel size')
-    CONFIGURATION.add(CONFIG, 'radius', 0, 50, 1)
+    CONFIGURATION.add(CONFIG, 'radius')
       .onFinishChange((size) => {
         setRadius(size)
-        // Will trigger shadow generation
-        // generateShadow()
       })
       .name('Pixel radius')
 
@@ -641,6 +644,10 @@ const App = () => {
     width,
     radius,
   ])
+
+  useEffect(() => {
+    saveToStorage()
+  }, [ size, radius, width, height, color, darkMode, saveToStorage])
 
   return (
     <Container>

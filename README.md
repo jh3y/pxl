@@ -11,8 +11,9 @@ A pixel sprite drawing application built with React.
 
 ## Example artwork
 
-![party corgi drawn with pxl](src/images/pixel-drawing.png)
+![party corgi drawn with pxl](src/images/doge.png)
 ![pxl logo](src/images/pxl.png)
+![party corgi drawn with pxl](src/images/grape.png)
 
 -----
 Made with 💻 by @jh3y 2020

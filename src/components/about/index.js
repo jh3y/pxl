@@ -1,16 +1,17 @@
 import T from 'prop-types'
 import React from 'react'
+import pkg from '../../../package.json'
 import { createPortal } from 'react-dom'
 
 const About = ({ parent }) => {
   if (!parent.current || !parent.current.domElement) return null
   return createPortal(
     <li
-    className='about'
+      className="about"
       style={{
         lineHeight: 1.5,
       }}>
-      <h2>pxl</h2>
+      <h2>{`pxl v${pkg.version}`}</h2>
       Made by{' '}
       <a
         style={{ fontWeight: 'bold', color: 'white' }}
@@ -28,6 +29,16 @@ const About = ({ parent }) => {
         "Making awesome things for awesome people"
       </a>{' '}
       stream.
+      <p>
+        Check out the repo on{' '}
+        <a
+          style={{ fontWeight: 'bold', color: 'white' }}
+          href="https://github.com/jh3y/pxl"
+          target="_blank"
+          rel="noopener noreferrer">
+          Github
+        </a>.
+      </p>
       <p>&copy; 2020</p>
     </li>,
     parent.current.domElement.querySelector('ul')

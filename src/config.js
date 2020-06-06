@@ -21,7 +21,7 @@ export default {
     window.localStorage.getItem(name) &&
     JSON.parse(window.localStorage.getItem(name)).radius
       ? JSON.parse(window.localStorage.getItem(name)).radius
-      : 0,
+      : false,
   color:
     window.localStorage.getItem(name) &&
     JSON.parse(window.localStorage.getItem(name)).color
