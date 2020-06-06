@@ -5,9 +5,49 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: #111;
+  touch-action: none;
+  font-family: sans-serif;
+  font-weight: bold;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+
+* {
+  box-sizing: border-box;
+  touch-action: none;
+}
+
+.dg .closed li:not(.folder).color-palette,
+.dg .closed li:not(.folder).snapshot-gallery,
+.dg .closed li:not(.folder).about {
+  height: 0;
+  overflow: hidden;
+}
+.dg .closed .help-list li {
+  margin: 0;
+}
+.dg .closed .help-list {
+  padding: 0;
+}
+
+.dg li:not(.folder).about,
+.dg li:not(.folder).snapshot-gallery,
+.dg li:not(.folder).color-palette {
+  height: auto;
+}
+
+#root {
+  height: 100vh;
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+          justify-content: center;
+  background: hsl(0, 0%, calc(var(--darkness, 100%) * 1%));
 }
