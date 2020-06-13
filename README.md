@@ -14,6 +14,6 @@ A pixel sprite drawing application built with React.
 ![party corgi drawn with pxl](src/images/doge.png)
 ![pxl logo](src/images/pxl.png)
 ![party corgi drawn with pxl](src/images/grape.png)
-
+![toad_pxlapp](src/images/toad_pxlapp.png)
 -----
 Made with 💻 by @jh3y 2020
