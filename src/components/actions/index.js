@@ -18,6 +18,7 @@ const ActionButton = styled.button`
 const Actions = ({
   parent,
   onCss,
+  onCssVar,
   onSvg,
   onSnapshot,
   onImage,
@@ -47,6 +48,16 @@ const Actions = ({
           onClick={() => onCss(false)}
           className="property-name">
           Copy CSS
+        </ActionButton>
+      </li>
+      <li
+        className="cr"
+        style={{ borderLeft: '3px solid hsl(180, 100%, 50%)' }}>
+        <ActionButton
+          style={{ width: '100%' }}
+          onClick={() => onCssVar()}
+          className="property-name">
+          Copy as CSS variable
         </ActionButton>
       </li>
       <li
@@ -116,6 +127,7 @@ const Actions = ({
 Actions.propTypes = {
   onClear: T.func,
   onCss: T.func,
+  onCssVar: T.func,
   onSvg: T.func,
   onImage: T.func,
   onSnapshot: T.func,
