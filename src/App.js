@@ -659,12 +659,11 @@ const App = () => {
   useEffect(() => {
     saveToStorage()
   }, [ size, radius, width, height, color, darkMode, saveToStorage])
-
   return (
     <Container>
       <Canvas
         size={size}
-        radius={radius}
+        circles={radius}
         width={width}
         height={height}
         cells={cellRef.current}

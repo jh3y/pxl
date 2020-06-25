@@ -9,6 +9,7 @@ body {
   touch-action: none;
   font-family: sans-serif;
   font-weight: bold;
+  background: hsl(0,0%,calc(var(--darkness, 100%)*1%));
 }
 
 code {

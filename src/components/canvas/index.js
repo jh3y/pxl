@@ -8,7 +8,7 @@ const Container = styled.div`
   width: ${(p) => p.width}px;
 `
 const Grid = styled.div`
-  --radius: ${(p) => p.radius};
+  --circles: ${(p) => p.circles};
   display: grid;
   position: absolute;
   grid-template-rows: repeat(${(p) => p.height}, ${(p) => p.size}px);
@@ -22,9 +22,9 @@ const Canvas = styled.canvas`
 `
 
 const Cell = styled.div`
-  border-radius: calc(var(--radius, 0) * 1%);
+  border-radius: calc(var(--circles, 0) * 1%);
 `
-const PixelCanvas = ({ color, cells, size, height, width, radius }) => {
+const PixelCanvas = ({ color, cells, size, height, width, circles }) => {
   const gridRef = useRef(null)
   const underlayRef = useRef(null)
   const contextRef = useRef(null)
@@ -45,14 +45,14 @@ const PixelCanvas = ({ color, cells, size, height, width, radius }) => {
       const X = CELL_INDEX % width
       const Y = Math.floor(CELL_INDEX / width)
       contextRef.current.fillStyle = color
-      if (erasing.current || !radius) {
+      if (erasing.current || !circles) {
         contextRef.current[erasing.current ? 'clearRect' : 'fillRect'](
           X * size,
           Y * size,
           size,
           size
         )
-      } else if (radius) {
+      } else if (circles) {
         contextRef.current.beginPath()
         contextRef.current.arc(
           X * size + size / 2,
@@ -95,13 +95,13 @@ const PixelCanvas = ({ color, cells, size, height, width, radius }) => {
       const CTX = underlayRef.current.getContext('2d')
       CTX.clearRect(0, 0, width * size, height * size)
       CTX.strokeStyle = 'hsl(0, 0%, 50%)'
-      CTX.lineWidth = 1
-      for (let l = 0; l < width + 1; l++) {
+      CTX.lineWidth = 2
+      for (let l = 1; l < width ; l++) {
         CTX.moveTo(l * size, 0)
         CTX.lineTo(l * size, height * size)
         CTX.stroke()
       }
-      for (let l = 0; l < height + 1; l++) {
+      for (let l = 1; l < height; l++) {
         CTX.moveTo(0, l * size)
         CTX.lineTo(width * size, l * size)
         CTX.stroke()
@@ -121,11 +121,10 @@ const PixelCanvas = ({ color, cells, size, height, width, radius }) => {
       contextRef.current.clearRect(0, 0, width * size, height * size)
       for (let c = 0; c < cells.length; c++) {
         if (cells[c].color) {
-          console.info('drawing')
           const X = c % width
           const Y = Math.floor(c / width)
           contextRef.current.fillStyle = cells[c].color
-          if (radius) {
+          if (circles) {
             contextRef.current.beginPath()
             contextRef.current.arc(
               X * size + size / 2,
@@ -136,12 +135,12 @@ const PixelCanvas = ({ color, cells, size, height, width, radius }) => {
             )
             contextRef.current.fill()
           } else {
-            contextRef.current.fillRect(X * size, Y * size, size, size)
+            contextRef.current.fillRect(X * size - 1, Y * size - 1, size, size)
           }
         }
       }
     }
-  }, [height, cells, size, width, radius])
+  }, [height, cells, size, width, circles])
 
   return (
     <Container width={width * size} height={height * size}>
@@ -157,7 +156,7 @@ const PixelCanvas = ({ color, cells, size, height, width, radius }) => {
         width={width}
         height={height}
         size={size}
-        radius={radius}>
+        circles={circles}>
         {cells.map((c, index) => {
           return <Cell key={index} data-index={index} index={index} />
         })}
@@ -173,7 +172,7 @@ PixelCanvas.propTypes = {
     })
   ),
   size: T.number,
-  radius: T.number,
+  circles: T.bool,
   width: T.number,
   height: T.number,
 }
