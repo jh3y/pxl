@@ -231,6 +231,17 @@ const App = () => {
       alert('Image CSS saved to clipboard!')
     }
   }
+  const onCopyCSSVariable = () => {
+    const shadow = generateShadow()
+    const el = document.createElement('textarea')
+    el.value = `--shadow: ${shadow};`;
+    el.height = el.width = 0
+    document.body.appendChild(el)
+    el.select()
+    document.execCommand('copy')
+    document.body.removeChild(el)
+    alert('Shadow CSS copied to clipboard!')
+  }
   const onSvg = () => {
     // Generate an SVG File
     // Create the SVG and then create a blob from outerHTML
@@ -648,12 +659,11 @@ const App = () => {
   useEffect(() => {
     saveToStorage()
   }, [ size, radius, width, height, color, darkMode, saveToStorage])
-
   return (
     <Container>
       <Canvas
         size={size}
-        radius={radius}
+        circles={radius}
         width={width}
         height={height}
         cells={cellRef.current}
@@ -677,6 +687,7 @@ const App = () => {
       <About parent={aboutFolderRef} />
       <Actions
         onCss={onCss}
+        onCssVar={onCopyCSSVariable}
         onSvg={onSvg}
         onSnapshot={onSnapshot}
         onImage={onImage}
