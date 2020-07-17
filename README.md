@@ -17,5 +17,6 @@ A pixel sprite drawing application built with React.
 ![toad_pxlapp](src/images/toad_pxlapp.png)
 ![jhey_pxl](src/images/jhey_pxl.png)
 ![Air Jordans one drawn with pxl ](src/images/Air_Jordans.png)
+![ghost drawn with pxl](src/images/ghost.png)
 -----
 Made with 💻 by @jh3y 2020
